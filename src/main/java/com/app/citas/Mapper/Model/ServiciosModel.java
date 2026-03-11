@@ -12,5 +12,6 @@ public class ServiciosModel {
     private int duracion_minutos;
     private float precio;
     private boolean activo;
+    private String telefono;
     
 }

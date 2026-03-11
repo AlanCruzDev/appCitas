@@ -39,7 +39,7 @@ public class Cliente implements Serializable{
     private LocalDateTime fechaRegistro;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
     @OneToMany(mappedBy = "cliente")

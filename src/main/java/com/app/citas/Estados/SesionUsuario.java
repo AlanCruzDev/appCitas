@@ -12,6 +12,8 @@ public class SesionUsuario {
     int selectMenu;
     Long sucursalId;
     Long servicioId;
+    Long clienteId;
     LocalDate fecha;
     LocalTime hora;
+    String telefono;
 }
