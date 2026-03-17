@@ -13,6 +13,7 @@ public class SesionUsuario {
     Long sucursalId;
     Long servicioId;
     Long clienteId;
+    Long empleadoId;
     LocalDate fecha;
     LocalTime hora;
     String telefono;

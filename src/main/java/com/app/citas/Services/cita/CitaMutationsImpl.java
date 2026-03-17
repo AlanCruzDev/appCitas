@@ -1,5 +1,6 @@
 package com.app.citas.Services.cita;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,14 +12,21 @@ import com.app.citas.Entity.Cliente;
 import com.app.citas.Entity.EstadoCita;
 import com.app.citas.Entity.Negocio;
 import com.app.citas.Entity.Servicio;
-import com.app.citas.Estados.SesionUsuario;
+import com.app.citas.Entity.SesionWhatsapp;
+import com.app.citas.Entity.Usuario;
+import com.app.citas.Repository.CitaRepository;
 import com.app.citas.Services.clientes.ClienteQuery;
 import com.app.citas.Services.negocio.INegocioQuery;
 import com.app.citas.Services.servicios.IServicioQuery;
+import com.app.citas.Services.usuario.EmpleadoQuery;
 
 @Service
 @Transactional
 public class CitaMutationsImpl implements CitaMutations{
+
+
+    @Autowired
+    private CitaRepository citaRepository;
 
     @Autowired
     private IServicioQuery iServicioQuery;
@@ -29,27 +37,31 @@ public class CitaMutationsImpl implements CitaMutations{
     @Autowired
     private ClienteQuery clienteQuery;
 
+    @Autowired
+    private EmpleadoQuery empleadoQuery;
+
     @Override
-    public String guardarCita(SesionUsuario serviciosModel, LocalTime horaSelect) {
+    public String guardarCita(SesionWhatsapp sesion, LocalTime horaSelect) {
         
-        Servicio ser = this.iServicioQuery.findByServicio(serviciosModel.getServicioId());
-        Negocio negocio = this.negocioQuery.encontrarNegocioById(serviciosModel.getSucursalId());
+        Servicio ser = this.iServicioQuery.findByServicio(sesion.getServicioId());
+        Negocio negocio = this.negocioQuery.encontrarNegocioById(sesion.getSucursalId());
         LocalTime horaFin = horaSelect.plusMinutes(ser.getDuracionMinutos());
-        Cliente cliente = this.clienteQuery.obtenerClienteByNumero(serviciosModel.getTelefono());
+        Cliente cliente = this.clienteQuery.obtenerClienteById(sesion.getClienteId());
+        Usuario barbero = this.empleadoQuery.obtenerEmpleadoById(sesion.getEmpleadoId());
 
         Cita cita = new Cita();
-        cita.setFecha(serviciosModel.getFecha());
+        cita.setFecha(LocalDate.now());
         cita.setHoraInicio(horaSelect);
         cita.setHoraFin(horaFin);
         cita.setServicio(ser);
         cita.setNegocio(negocio);
         cita.setCliente(cliente);
         cita.setEstado(EstadoCita.AGENDADA);
-
+        cita.setEmpleado(barbero);
         // FALTA GUARDAR EL BARBERO
-
+        this.citaRepository.save(cita);
         String respuesta = "✅ Cita agendada\n\n"
-            + "📅 Fecha: " + serviciosModel.getFecha()
+            + "📅 Fecha: " + cita.getFecha()
             + "\n⏰ Hora: " + horaSelect
             + "\n💈 Servicio: " + ser.getNombre();
         return respuesta;

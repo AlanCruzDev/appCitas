@@ -32,7 +32,9 @@ public class IServicioQueryImpl implements IServicioQuery{
 
     @Override
     public Servicio findByServicio(Long servicioId) {
-        return servicioRepository.findById(servicioId).get();
+        if(servicioId != null)
+            return this.servicioRepository.findById(servicioId).get();
+        return null;
     }
 
     

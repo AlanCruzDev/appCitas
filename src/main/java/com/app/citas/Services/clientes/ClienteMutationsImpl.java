@@ -25,6 +25,7 @@ public class ClienteMutationsImpl implements ClienteMutations{
         cliente.setNombre("S/N");
         cliente.setTelefono(telefono);
         cliente.setFechaRegistro(LocalDateTime.now());
+        cliente.setUsuario(null);
         return this.clienteRepository.save(cliente);
     }    
 }

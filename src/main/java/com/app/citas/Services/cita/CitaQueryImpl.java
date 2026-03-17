@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.app.citas.Entity.Cita;
 import com.app.citas.Entity.Negocio;
 import com.app.citas.Entity.Servicio;
-import com.app.citas.Estados.SesionUsuario;
+import com.app.citas.Entity.SesionWhatsapp;
 import com.app.citas.Repository.CitaRepository;
 import com.app.citas.Services.negocio.INegocioQuery;
 import com.app.citas.Services.servicios.IServicioQuery;
@@ -29,11 +29,12 @@ public class CitaQueryImpl implements ICitaQuery {
     private INegocioQuery negocioQuery;
 
     @Override
-    public List<LocalTime> obtenerHorariosDisponibles(SesionUsuario sesionUsuario) {
+    public List<LocalTime> obtenerHorariosDisponibles(SesionWhatsapp sesion) {
+        
 
-        List<Cita> citas = citaRepository.obtenerCitasDelDia(sesionUsuario.getSucursalId(), LocalDate.now());
-        Servicio servicio = this.iServicioQuery.findByServicio(sesionUsuario.getServicioId());
-        Negocio negocio = this.negocioQuery.encontrarNegocioById(sesionUsuario.getSucursalId());
+        List<Cita> citas = citaRepository.obtenerCitasDelDia(sesion.getSucursalId(), LocalDate.now());
+        Servicio servicio = this.iServicioQuery.findByServicio(sesion.getServicioId());
+        Negocio negocio = this.negocioQuery.encontrarNegocioById(sesion.getSucursalId());
 
         List<LocalTime> horarios=generarHorariosDisponibles(
             negocio.getHora_apertura(),
