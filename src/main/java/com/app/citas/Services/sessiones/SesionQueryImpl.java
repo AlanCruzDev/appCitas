@@ -11,8 +11,7 @@ import com.app.citas.Repository.SesionWhatsappRepository;
 
 @Service
 @Transactional
-public class SesionQueryImpl implements ISesionQuery{
-
+public class SesionQueryImpl implements ISesionQuery {
 
     @Autowired
     private SesionWhatsappRepository sesionWhatsappRepository;
@@ -20,24 +19,19 @@ public class SesionQueryImpl implements ISesionQuery{
     @Autowired
     private ISesionMutant sesionMutant;
 
-
-
-    private static final int MINUTOS_EXPIRACION=15;
-
-
-
+    private static final int MINUTOS_EXPIRACION = 5;
 
     @Override
     public SesionWhatsapp obtenerSesion(String telefono) {
-        SesionWhatsapp sesion = this.sesionWhatsappRepository.findByTelefono(telefono).orElse(null);        
-        if(sesion == null){
+        SesionWhatsapp sesion = this.sesionWhatsappRepository.findByTelefono(telefono).orElse(null);
+        if (sesion == null) {
             sesion = this.sesionMutant.crearSesionNueva(telefono);
             return sesion;
         }
 
-        if(sesionExpirada(sesion)){
-            sesion=this.sesionMutant.reiniciarSesion(sesion);
-            sesion.setMensajeSistema("Tu sesión expiró, iniciemos nuevamente.");
+        if (sesionExpirada(sesion)) {
+            sesion = this.sesionMutant.reiniciarSesion(sesion);
+            sesion.setMensajeSistema("⏳ Tu sesión expiró por inactividad.\n\nIniciemos nuevamente.");
         }
         return sesion;
     }

@@ -1,6 +1,5 @@
 package com.app.citas.config;
 
-
 import java.time.LocalTime;
 import java.util.List;
 
@@ -22,15 +21,33 @@ public class FechaState implements BotState {
     @Autowired
     private CitaMutations citaMutations;
 
+    @Autowired
+    private BotValidador botValidador;
 
     @Override
     public String procesar(String from, String to, String body,
             SesionWhatsapp sesion) {
-
         String respuesta = "";
-        int opcionHora = Integer.parseInt(body.trim());
+
         List<LocalTime> horariosLista = citaQuery.obtenerHorariosDisponibles(sesion);
-        LocalTime horaSelect = horariosLista.get(opcionHora - 1);
+        Integer opcionValidate = this.botValidador.validarOpcion(body, horariosLista.size());
+
+        if (opcionValidate == null) {
+            StringBuilder mensajeHora = new StringBuilder();
+            mensajeHora.append("❌ Opción inválida\n\n");
+            mensajeHora.append("Selecciona un horario disponible:\n");
+            int k = 1;
+            for (LocalTime hora : horariosLista) {
+                mensajeHora.append(k)
+                        .append("️⃣ ")
+                        .append(hora)
+                        .append("\n");
+                k++;
+            }
+            return mensajeHora.toString();
+        }
+
+        LocalTime horaSelect = horariosLista.get(opcionValidate - 1);
         respuesta = citaMutations.guardarCita(sesion, horaSelect);
         sesion.setEstado(EstadoBot.MENU);
         return respuesta;

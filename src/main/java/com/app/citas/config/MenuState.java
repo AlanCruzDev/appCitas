@@ -23,10 +23,9 @@ public class MenuState implements BotState {
 
     @Autowired
     private ClienteMutations clienteMutations;
-    
+
     @Autowired
     private INegocioQuery negocioQuery;
-
 
     @Override
     public String procesar(String from, String to, String body, SesionWhatsapp sesion) {
@@ -35,36 +34,35 @@ public class MenuState implements BotState {
 
         if (body.trim().equals("1")) {
             sesion.setEstado(EstadoBot.SELECCION_SUCURSAL);
-            List<NegocioModel> sucursales =
-                            negocioQuery.encontrarNegocioByNumero(to);
+            List<NegocioModel> sucursales = negocioQuery.encontrarNegocioByNumero(to);
             StringBuilder mensaje = new StringBuilder();
+
             mensaje.append("Selecciona una sucursal:\n\n");
             int i = 1;
             for (NegocioModel s : sucursales) {
-                    mensaje.append(i)
-                            .append("️⃣ ")
-                            .append(s.getNombre())
-                            .append("\n");
-                        i++;
+                mensaje.append(i)
+                        .append("️⃣ ")
+                        .append(s.getNombre())
+                        .append("\n");
+                i++;
             }
             respuesta = mensaje.toString();
 
             // CAMBIAMOS DE CICLO MENU A SUCURSAL
             sesion.setEstado(EstadoBot.SELECCION_SUCURSAL);
-        }else{
-            
+        } else {
+
             Cliente cliente = clienteQuery.obtenerClienteByNumero(from);
             if (Objects.isNull(cliente)) {
                 cliente = clienteMutations.guardarCliente(from);
             }
 
-            //  ACTUALIZAMOS LA SESSION
+            // ACTUALIZAMOS LA SESSION
             sesion.setClienteId(cliente.getId());
-            respuesta =
-                "Hola Bienvenido 👋\n\n" +
-                "1️⃣ Agendar cita\n" +
-                "2️⃣ Cancelar cita\n" +
-                "3️⃣ Ver horarios";
+            respuesta = "Hola Bienvenido 👋\n\n" +
+                    "1️⃣ Agendar cita\n" +
+                    "2️⃣ Cancelar cita\n" +
+                    "3️⃣ Ver horarios";
         }
         return respuesta;
     }

@@ -1,9 +1,9 @@
 package com.app.citas.Entity;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-
+import java.time.LocalTime;
 
 import com.app.citas.Estados.EstadoBot;
 
@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +25,7 @@ import lombok.Setter;
 @Table(name = "SesionWhatsapp", schema = "cit_mex")
 @Getter
 @Setter
-public class SesionWhatsapp implements Serializable{
+public class SesionWhatsapp implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,21 +42,22 @@ public class SesionWhatsapp implements Serializable{
     private Long sucursalId;
     private Long servicioId;
     private Long empleadoId;
-    
-    private LocalDateTime fechaCreacion;
+
+    private LocalDate fechaCreacion;
+    private LocalTime hora;
     private LocalDateTime ultimaInteraccion;
+
+    @Transient
     private String mensajeSistema;
 
-
     @PrePersist
-    public void prePersist(){
-        this.fechaCreacion = LocalDateTime.now();
+    public void prePersist() {
         this.ultimaInteraccion = LocalDateTime.now();
     }
 
     @PreUpdate
-    public void preUpdate(){
+    public void preUpdate() {
         this.ultimaInteraccion = LocalDateTime.now();
     }
-    
+
 }
