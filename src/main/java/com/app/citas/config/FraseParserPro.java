@@ -95,35 +95,34 @@ public class FraseParserPro {
     public LocalTime detectarHoraPro(String input) {
 
         input = normalizar(input);
-        Pattern horaMin = Pattern.compile("(\\d{1,2}):(\\d{2})");
-        Matcher m1 = horaMin.matcher(input);
 
-        if (m1.find()) {
-            int hora = Integer.parseInt(m1.group(1));
-            int min = Integer.parseInt(m1.group(2));
+        // 🔥 SOLO detectar hora después de "a las"
+        Pattern pattern = Pattern.compile("a\\s+las\\s+(\\d{1,2})(:(\\d{2}))?");
+        Matcher matcher = pattern.matcher(input);
 
-            if (input.contains("pm") && hora < 12)
-                hora += 12;
-            if (input.contains("am") && hora == 12)
-                hora = 0;
+        if (matcher.find()) {
 
-            return LocalTime.of(hora, min);
-        }
+            int hora = Integer.parseInt(matcher.group(1));
+            int min = matcher.group(3) != null
+                    ? Integer.parseInt(matcher.group(3))
+                    : 0;
 
-        Pattern horaSimple = Pattern.compile("(\\d{1,2})");
-        Matcher m2 = horaSimple.matcher(input);
-
-        if (m2.find()) {
-            int hora = Integer.parseInt(m2.group(1));
-
+            // 🔥 CONTEXTO
             if (input.contains("tarde") && hora < 12)
                 hora += 12;
+
             if (input.contains("pm") && hora < 12)
                 hora += 12;
+
             if (input.contains("am") && hora == 12)
                 hora = 0;
 
-            return LocalTime.of(hora, 0);
+            // 🔥 VALIDACIÓN EXTRA
+            if (hora < 0 || hora > 23) {
+                return null;
+            }
+
+            return LocalTime.of(hora, min);
         }
 
         return null;

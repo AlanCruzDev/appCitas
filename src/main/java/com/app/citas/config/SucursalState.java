@@ -31,20 +31,33 @@ public class SucursalState implements BotState {
     @Override
     public String procesar(String from, String to, String body, SesionWhatsapp sesion) {
         String respuesta = "";
+        Integer opcionValidate = null;
 
         List<NegocioModel> sucursales = negocioQuery.encontrarNegocioByNumero(to);
+        if (sucursales.size() == 1) {
+            sesion.setSucursalId(sucursales.get(0).getIdNegocio());
+            respuesta = generarMapeoServicios(sesion.getSucursalId());
+            sesion.setEstado(EstadoBot.SELECCION_SERVICIO);
+            return respuesta;
 
-        Integer opcionValidate = this.botValidador.validarOpcion(body, sucursales.size());
-        if (opcionValidate == null) {
-            List<String> nombres = sucursales.stream().map(NegocioModel::getNombre).toList();
-            return this.construcionMensaje.ConstruirLista("Selecciona una sucursal:", nombres);
+        } else {
+            opcionValidate = this.botValidador.validarOpcion(body, sucursales.size());
+            if (opcionValidate == null) {
+                List<String> nombres = sucursales.stream().map(NegocioModel::getNombre).toList();
+                return this.construcionMensaje.ConstruirLista("Selecciona una sucursal:", nombres);
+            }
         }
 
-        NegocioModel negocioSelect = sucursales.get(opcionValidate - 1);
+        NegocioModel negocioSelect = selecionarNegocio(opcionValidate, sucursales);
         sesion.setSucursalId(negocioSelect.getIdNegocio());
+        respuesta = generarMapeoServicios(negocioSelect.getIdNegocio());
+        sesion.setEstado(EstadoBot.SELECCION_SERVICIO);
+        return respuesta;
+    }
 
-        List<ServiciosModel> servicios = iServicioQuery.obtenerServiciosByNegocio(
-                negocioSelect.getIdNegocio());
+    private String generarMapeoServicios(long IdNegocio) {
+
+        List<ServiciosModel> servicios = iServicioQuery.obtenerServiciosByNegocio(IdNegocio);
         StringBuilder mensajeServicio = new StringBuilder();
         mensajeServicio.append("Selecciona un servicio:\n\n");
 
@@ -58,9 +71,11 @@ public class SucursalState implements BotState {
                     .append("\n");
             i++;
         }
-
-        respuesta = mensajeServicio.toString();
-        sesion.setEstado(EstadoBot.SELECCION_SERVICIO);
-        return respuesta;
+        return mensajeServicio.toString();
     }
+
+    private NegocioModel selecionarNegocio(int opcionValidate, List<NegocioModel> sucursales) {
+        return sucursales.get(opcionValidate - 1);
+    }
+
 }

@@ -33,16 +33,32 @@ public class EmpleadoState implements BotState {
     public String procesar(String from, String to, String body, SesionWhatsapp sesion) {
 
         String respuesta = "";
-        List<Usuario> empleados = empleadoQuery.obtenerEmpleadosBySucursal(sesion.getSucursalId());
-        Integer opcionValidate = this.botValidador.validarOpcion(body, empleados.size());
-        if (opcionValidate == null) {
-            List<String> nombres = empleados.stream().map(Usuario::getNombre).toList();
-            return this.construcionMensaje.ConstruirLista("Selecciona un empleado:", nombres);
+
+        if (sesion.getEmpleadoId() == null) {
+            List<Usuario> empleados = empleadoQuery.obtenerEmpleadosBySucursal(sesion.getSucursalId());
+            Integer opcionValidate = this.botValidador.validarOpcion(body, empleados.size());
+            if (opcionValidate == null) {
+                List<String> nombres = empleados.stream().map(Usuario::getNombre).toList();
+                return this.construcionMensaje.ConstruirLista("Selecciona un empleado:", nombres);
+            }
+            Usuario empleadoSelect = empleados.get(opcionValidate - 1);
+            sesion.setEmpleadoId(empleadoSelect.getId());
         }
 
-        Usuario empleadoSelect = empleados.get(opcionValidate - 1);
-        sesion.setEmpleadoId(empleadoSelect.getId());
+        if (sesion.getFechaCreacion() == null || sesion.getHora() == null) {
 
+            // VALIDAR QUE DATO FALTO SI FECHA O HORA Y TEEMOS QUE CAMBIAR DE ESTADO
+            respuesta = crearListaHorarios(sesion);
+            sesion.setEstado(EstadoBot.SELECCION_FECHA);
+            return respuesta;
+        } else {
+            // validando su hora de cita
+            sesion.setEstado(EstadoBot.CREAR_CITA);
+            return null;
+        }
+    }
+
+    private String crearListaHorarios(SesionWhatsapp sesion) {
         List<LocalTime> horarios = citaQuery.obtenerHorariosDisponibles(sesion);
         StringBuilder mensajeHora = new StringBuilder();
         mensajeHora.append("Selecciona un horario disponible:\n\n");
@@ -54,15 +70,7 @@ public class EmpleadoState implements BotState {
                     .append("\n");
             k++;
         }
-        respuesta = mensajeHora.toString();
-
-        if (sesion.getFechaCreacion() != null && sesion.getHora() != null) {
-            sesion.setEstado(EstadoBot.SELECCION_FECHA);
-
-        } else {
-            sesion.setEstado(EstadoBot.CREAR_CITA);
-        }
-        return respuesta;
+        return mensajeHora.toString();
     }
 
 }

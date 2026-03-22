@@ -10,13 +10,14 @@ import com.app.citas.Estados.EstadoBot;
 public class BotStateFactory {
 
     @Autowired
-    private MenuState menuState;
-    @Autowired
     private SucursalState sucursalState;
+
     @Autowired
     private ServicioState servicioState;
+
     @Autowired
     private EmpleadoState empleadoState;
+
     @Autowired
     private CitaState citaState;
 
@@ -25,13 +26,12 @@ public class BotStateFactory {
 
     public BotState obtenerEstados(EstadoBot estadoBot) {
         return switch (estadoBot) {
-            case MENU -> menuState;
             case SELECCION_SUCURSAL -> sucursalState;
             case SELECCION_SERVICIO -> servicioState;
             case SELECCION_EMPLEADO -> empleadoState;
             case SELECCION_FECHA -> fechaState;
             case CREAR_CITA -> citaState;
-            default -> menuState;
+            default -> servicioState;
         };
     }
 

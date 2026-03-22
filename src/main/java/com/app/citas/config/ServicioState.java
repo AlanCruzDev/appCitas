@@ -41,12 +41,23 @@ public class ServicioState implements BotState {
             List<String> nombres = serviciosList.stream().map(ServiciosModel::getNombre).toList();
             return this.construcionMensaje.ConstruirLista("Selecciona un servicio:", nombres);
         }
-
         ServiciosModel servicioSelect = serviciosList.get(opcionValidate - 1);
         sesion.setServicioId(servicioSelect.getIdServicio());
 
-        List<Usuario> empleados = empleadoQuery.obtenerEmpleadosBySucursal(
-                sesion.getSucursalId());
+        List<Usuario> empleados = empleadoQuery.obtenerEmpleadosBySucursal(sesion.getSucursalId());
+
+        if (empleados.size() == 1) {
+            sesion.setEmpleadoId(empleados.get(0).getId());
+            sesion.setEstado(EstadoBot.SELECCION_EMPLEADO);
+            return null;
+        }
+        sesion.setEmpleadoId(null);
+        respuesta = GenerarListaEmpleados(empleados);
+        sesion.setEstado(EstadoBot.SELECCION_EMPLEADO);
+        return respuesta;
+    }
+
+    private String GenerarListaEmpleados(List<Usuario> empleados) {
 
         StringBuilder mensajeEmpleado = new StringBuilder();
         mensajeEmpleado.append("Selecciona un empleado:\n\n");
@@ -59,10 +70,7 @@ public class ServicioState implements BotState {
                     .append("\n");
             j++;
         }
-        respuesta = mensajeEmpleado.toString();
-
-        sesion.setEstado(EstadoBot.SELECCION_EMPLEADO);
-        return respuesta;
+        return mensajeEmpleado.toString();
     }
 
 }

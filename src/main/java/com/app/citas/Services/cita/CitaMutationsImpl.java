@@ -22,8 +22,7 @@ import com.app.citas.Services.usuario.EmpleadoQuery;
 
 @Service
 @Transactional
-public class CitaMutationsImpl implements CitaMutations{
-
+public class CitaMutationsImpl implements CitaMutations {
 
     @Autowired
     private CitaRepository citaRepository;
@@ -41,8 +40,36 @@ public class CitaMutationsImpl implements CitaMutations{
     private EmpleadoQuery empleadoQuery;
 
     @Override
+    public String guardarCitaSesion(SesionWhatsapp sesion) {
+
+        Servicio ser = this.iServicioQuery.findByServicio(sesion.getServicioId());
+        Negocio negocio = this.negocioQuery.encontrarNegocioById(sesion.getSucursalId());
+        LocalTime horaFin = sesion.getHora().plusMinutes(ser.getDuracionMinutos());
+        Cliente cliente = this.clienteQuery.obtenerClienteById(sesion.getClienteId());
+        Usuario barbero = this.empleadoQuery.obtenerEmpleadoById(sesion.getEmpleadoId());
+
+        Cita cita = new Cita();
+        cita.setFecha(LocalDate.now());
+        cita.setHoraInicio(sesion.getHora());
+        cita.setHoraFin(horaFin);
+        cita.setServicio(ser);
+        cita.setNegocio(negocio);
+        cita.setCliente(cliente);
+        cita.setEstado(EstadoCita.AGENDADA);
+        cita.setEmpleado(barbero);
+        // FALTA GUARDAR EL BARBERO
+        this.citaRepository.save(cita);
+        String respuesta = "✅ Cita agendada. Muchas Gracias Por Su Preferencia\n\n"
+                + "📅 Fecha: " + cita.getFecha()
+                + "\n⏰ Hora: " + sesion.getHora()
+                + "\n💈 Servicio: " + ser.getNombre();
+        return respuesta;
+
+    }
+
+    @Override
     public String guardarCita(SesionWhatsapp sesion, LocalTime horaSelect) {
-        
+
         Servicio ser = this.iServicioQuery.findByServicio(sesion.getServicioId());
         Negocio negocio = this.negocioQuery.encontrarNegocioById(sesion.getSucursalId());
         LocalTime horaFin = horaSelect.plusMinutes(ser.getDuracionMinutos());
@@ -61,9 +88,9 @@ public class CitaMutationsImpl implements CitaMutations{
         // FALTA GUARDAR EL BARBERO
         this.citaRepository.save(cita);
         String respuesta = "✅ Cita agendada\n\n"
-            + "📅 Fecha: " + cita.getFecha()
-            + "\n⏰ Hora: " + horaSelect
-            + "\n💈 Servicio: " + ser.getNombre();
+                + "📅 Fecha: " + cita.getFecha()
+                + "\n⏰ Hora: " + horaSelect
+                + "\n💈 Servicio: " + ser.getNombre();
         return respuesta;
     }
 

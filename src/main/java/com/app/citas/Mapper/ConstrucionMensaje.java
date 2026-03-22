@@ -9,7 +9,6 @@ public class ConstrucionMensaje {
 
     public String ConstruirLista(String titulo, List<String> items) {
         StringBuilder mensaje = new StringBuilder();
-        mensaje.append("❌ Opción inválida\n\n");
         mensaje.append(titulo).append("\n\n");
         int i = 1;
         for (String item : items) {
