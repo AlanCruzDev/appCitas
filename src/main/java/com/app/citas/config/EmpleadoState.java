@@ -52,7 +52,6 @@ public class EmpleadoState implements BotState {
             sesion.setEstado(EstadoBot.SELECCION_FECHA);
             return respuesta;
         } else {
-            // validando su hora de cita
             sesion.setEstado(EstadoBot.CREAR_CITA);
             return null;
         }

@@ -7,8 +7,7 @@ import com.app.citas.Entity.SesionWhatsapp;
 
 public interface ICitaQuery {
 
+    public List<LocalTime> procesarHoraUsuario(SesionWhatsapp sesion);
+
     public List<LocalTime> obtenerHorariosDisponibles(SesionWhatsapp sesion);
-
-    public boolean cupoDisponible(SesionWhatsapp sesionWhatsapp);
-
 }

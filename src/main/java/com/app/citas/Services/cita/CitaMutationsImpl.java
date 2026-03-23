@@ -45,11 +45,11 @@ public class CitaMutationsImpl implements CitaMutations {
         Servicio ser = this.iServicioQuery.findByServicio(sesion.getServicioId());
         Negocio negocio = this.negocioQuery.encontrarNegocioById(sesion.getSucursalId());
         LocalTime horaFin = sesion.getHora().plusMinutes(ser.getDuracionMinutos());
-        Cliente cliente = this.clienteQuery.obtenerClienteById(sesion.getClienteId());
+        Cliente cliente = this.clienteQuery.obtenerClienteByNumero(sesion.getTelefono());
         Usuario barbero = this.empleadoQuery.obtenerEmpleadoById(sesion.getEmpleadoId());
 
         Cita cita = new Cita();
-        cita.setFecha(LocalDate.now());
+        cita.setFecha(sesion.getFechaCreacion());
         cita.setHoraInicio(sesion.getHora());
         cita.setHoraFin(horaFin);
         cita.setServicio(ser);
@@ -57,7 +57,6 @@ public class CitaMutationsImpl implements CitaMutations {
         cita.setCliente(cliente);
         cita.setEstado(EstadoCita.AGENDADA);
         cita.setEmpleado(barbero);
-        // FALTA GUARDAR EL BARBERO
         this.citaRepository.save(cita);
         String respuesta = "✅ Cita agendada. Muchas Gracias Por Su Preferencia\n\n"
                 + "📅 Fecha: " + cita.getFecha()

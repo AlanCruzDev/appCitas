@@ -11,46 +11,51 @@ import com.app.citas.Estados.BotState;
 import com.app.citas.Estados.EstadoBot;
 import com.app.citas.Services.cita.CitaMutations;
 import com.app.citas.Services.cita.ICitaQuery;
+import com.app.citas.Util.Util;
 
 @Component
 public class CitaState implements BotState {
 
     @Autowired
+    private ICitaQuery citaQuery;
+
+    @Autowired
     private CitaMutations citaMutations;
 
     @Autowired
-    private ICitaQuery citaQuery;
+    private Util util;
 
     @Override
     public String procesar(String from, String to, String body, SesionWhatsapp sesion) {
+        List<LocalTime> disponibles = this.citaQuery.procesarHoraUsuario(sesion);
 
-        String respuesta = "";
-        boolean disponible = this.citaQuery.cupoDisponible(sesion);
-
-        if (disponible) {
-            respuesta = this.citaMutations.guardarCitaSesion(sesion);
-        } else {
-            respuesta = crearListaHorarios(sesion);
-            sesion.setEstado(EstadoBot.SELECCION_FECHA);
-            return respuesta;
+        if (disponibles.isEmpty()) {
+            return "❌ No hay horarios disponibles hoy";
         }
 
-        return respuesta;
-    }
+        if (disponibles.contains(sesion.getHora())) {
+            // CREAMOS LA CITA
+            return this.citaMutations.guardarCitaSesion(sesion);
+        }
 
-    private String crearListaHorarios(SesionWhatsapp sesion) {
-        List<LocalTime> horarios = citaQuery.obtenerHorariosDisponibles(sesion);
-        StringBuilder mensajeHora = new StringBuilder();
-        mensajeHora.append("Selecciona un horario disponible:\n\n");
-        int k = 1;
-        for (LocalTime hora : horarios) {
-            mensajeHora.append(k)
+        List<LocalTime> sugerencias = this.util.sugerirDosMejoresSlots(sesion.getHora(), disponibles);
+
+        StringBuilder mensaje = new StringBuilder();
+        mensaje.append("⏰ No tengo disponible a las ")
+                .append(this.util.formatearHora(sesion.getHora()))
+                .append("\n\nPero puedo agendarte a:\n\n");
+
+        for (int i = 0; i < sugerencias.size(); i++) {
+            mensaje.append(i + 1)
                     .append("️⃣ ")
-                    .append(hora)
+                    .append(this.util.formatearHora(sugerencias.get(i)))
                     .append("\n");
-            k++;
         }
-        return mensajeHora.toString();
-    }
 
+        mensaje.append("\nResponde con el número que prefieras 🙌");
+
+        sesion.setHorariosSugeridos(sugerencias);
+        sesion.setEstado(EstadoBot.SELECCION_HORA_SUGERIDA);
+        return mensaje.toString();
+    }
 }

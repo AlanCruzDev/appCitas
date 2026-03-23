@@ -1,6 +1,5 @@
 package com.app.citas.Services.cita;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,28 +28,17 @@ public class CitaQueryImpl implements ICitaQuery {
     private INegocioQuery negocioQuery;
 
     @Override
-    public boolean cupoDisponible(SesionWhatsapp sesionWhatsapp) {
+    public List<LocalTime> procesarHoraUsuario(SesionWhatsapp sesion) {
 
-        List<Cita> citas = citaRepository.obtenerCitasDelDia(sesionWhatsapp.getSucursalId(),
-                sesionWhatsapp.getFechaCreacion());
-        Servicio servicio = this.iServicioQuery.findByServicio(sesionWhatsapp.getServicioId());
-        Negocio negocio = this.negocioQuery.encontrarNegocioById(sesionWhatsapp.getSucursalId());
-
-        List<LocalTime> horarios = generarHorariosDisponibles(
-                negocio.getHora_apertura(),
-                negocio.getHora_cierre(),
-                servicio.getDuracionMinutos(),
-                citas);
-        boolean ocupado = horarios.stream().anyMatch(h -> h.equals(sesionWhatsapp.getHora()));
-        return ocupado;
+        List<LocalTime> disponibles = obtenerHorariosDisponibles(sesion);
+        return disponibles;
     }
-
-    // OBTENER CITAS DEL DIA EN ACCION DEL MENU
 
     @Override
     public List<LocalTime> obtenerHorariosDisponibles(SesionWhatsapp sesion) {
 
-        List<Cita> citas = citaRepository.obtenerCitasDelDia(sesion.getSucursalId(), LocalDate.now());
+        List<Cita> citas = citaRepository.obtenerCitasDelDia(sesion.getSucursalId(), sesion.getFechaCreacion(),
+                sesion.getEmpleadoId());
         Servicio servicio = this.iServicioQuery.findByServicio(sesion.getServicioId());
         Negocio negocio = this.negocioQuery.encontrarNegocioById(sesion.getSucursalId());
 
@@ -91,6 +79,10 @@ public class CitaQueryImpl implements ICitaQuery {
             horaActual = horaActual.plusMinutes(duracionServicio);
         }
         return horariosDisponibles;
+    }
+
+    public String formatearHora(LocalTime hora) {
+        return hora.format(java.time.format.DateTimeFormatter.ofPattern("h:mm a"));
     }
 
 }

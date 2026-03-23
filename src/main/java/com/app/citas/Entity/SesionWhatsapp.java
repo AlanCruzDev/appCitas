@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import com.app.citas.Estados.EstadoBot;
 
@@ -49,6 +50,9 @@ public class SesionWhatsapp implements Serializable {
 
     @Transient
     private String mensajeSistema;
+
+    @Transient
+    private List<LocalTime> horariosSugeridos;
 
     @PrePersist
     public void prePersist() {
