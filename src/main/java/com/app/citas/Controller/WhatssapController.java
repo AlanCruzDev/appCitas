@@ -2,6 +2,7 @@ package com.app.citas.Controller;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,9 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.citas.Entity.Cita;
 import com.app.citas.Entity.SesionWhatsapp;
 import com.app.citas.Estados.BotState;
 import com.app.citas.Estados.EstadoBot;
+import com.app.citas.Services.cita.ICitaQuery;
 import com.app.citas.Services.sessiones.ISesionMutant;
 import com.app.citas.Services.sessiones.ISesionQuery;
 import com.app.citas.config.BotStateFactory;
@@ -37,6 +40,9 @@ public class WhatssapController {
         @Autowired
         private BotStateFactory botstateFactory;
 
+        @Autowired
+        private ICitaQuery citaQuery;
+
         @PostMapping(value = "/menu", produces = "application/xml")
         public String recibirMensaje(
                         @RequestParam("From") String from,
@@ -44,10 +50,14 @@ public class WhatssapController {
                         @RequestParam("Body") String body) {
                 SesionWhatsapp sesion = this.sesionQuery.obtenerSesion(from);
 
-                // validamos si ya expiro el mensaje sesion.setMensajeSistema("⏳ Tu sesión
-                // expiró por inactividad.\n\nIniciemos nuevamente.");
-
                 String respuesta;
+                if (sesion.getMensajeSistema() != null) {
+                        sesionMutant.reiniciarSesion(sesion);
+                        return buildResponse(
+                                        "⏳ Tu sesión expiró por inactividad.\n\n" +
+                                                        "Empecemos de nuevo 😊\n\n",
+                                        sesion);
+                }
 
                 LocalDate fecha = fraseParser.detectarFechaPro(body);
 
@@ -66,6 +76,16 @@ public class WhatssapController {
                 String dectar = this.intentHandler.detectarIntento(body);
 
                 if (dectar.equals("AGENDAR")) {
+                        List<Cita> citas = this.citaQuery.verficarCantidadCitasAgendadas(from,
+                                        fecha == null ? LocalDate.now() : fecha);
+                        if (citas.size() > 0) {
+                                Cita cita = citas.get(0);
+                                return buildResponse(
+                                                "⚠️ Ya tienes una cita hoy a las " + cita.getHoraInicio() + "\n\n" +
+                                                                "Reagendar\n" +
+                                                                "Cancelar\n",
+                                                sesion);
+                        }
                         sesion.setEstado(EstadoBot.SELECCION_SUCURSAL);
                 }
 

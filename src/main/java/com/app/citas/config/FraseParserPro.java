@@ -67,12 +67,12 @@ public class FraseParserPro {
             return LocalDate.now();
         }
 
-        if (input.contains("mañana")) {
-            return LocalDate.now().plusDays(1);
+        if (input.matches(".*\\bpasado manana\\b.*")) {
+            return LocalDate.now().plusDays(2);
         }
 
-        if (input.contains("pasado mañana")) {
-            return LocalDate.now().plusDays(2);
+        if (input.matches(".*\\bmanana\\b.*")) {
+            return LocalDate.now().plusDays(1);
         }
 
         if (input.contains("lunes"))

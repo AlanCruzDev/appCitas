@@ -1,7 +1,9 @@
 package com.app.citas.Estados;
 
 public enum EstadoBot {
+
     MENU,
+    YA_TIENE_CITA,
     SELECCION_SUCURSAL,
     SELECCION_EMPLEADO,
     SELECCION_SERVICIO,

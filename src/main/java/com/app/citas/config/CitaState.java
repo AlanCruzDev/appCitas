@@ -1,5 +1,6 @@
 package com.app.citas.config;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -30,11 +31,31 @@ public class CitaState implements BotState {
         List<LocalTime> disponibles = this.citaQuery.procesarHoraUsuario(sesion);
 
         if (disponibles.isEmpty()) {
-            return "❌ No hay horarios disponibles hoy";
+            LocalDate sugerida = citaQuery.buscarSiguienteDiaDisponible(sesion);
+            if (sugerida != null) {
+
+                sesion.setFechaCreacion(sugerida);
+                sesion.setEstado(EstadoBot.SELECCION_HORA_SUGERIDA);
+                List<LocalTime> horarios = this.citaQuery.obtenerHorariosDisponibles(sesion);
+                StringBuilder mensajeHora = new StringBuilder();
+                mensajeHora.append("❌ No hay horarios ese día 😢\n\n");
+                mensajeHora.append("👉 Pero mira estos horarios disponibles para ti.  \n\n");
+                int k = 1;
+                for (LocalTime hora : horarios) {
+                    mensajeHora.append(k)
+                            .append("️⃣ ")
+                            .append(hora)
+                            .append("\n");
+                    k++;
+                }
+                return mensajeHora.toString();
+            }
+
+            sesion.setEstado(EstadoBot.MENU);
+            return "❌ No hay horarios disponibles hoy. Fin de la Conversarion";
         }
 
         if (disponibles.contains(sesion.getHora())) {
-            // CREAMOS LA CITA
             return this.citaMutations.guardarCitaSesion(sesion);
         }
 

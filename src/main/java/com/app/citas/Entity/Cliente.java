@@ -17,13 +17,11 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Entity
 @Table(name = "cliente", schema = "cit_mex")
 @Getter
 @Setter
-public class Cliente implements Serializable{
-
+public class Cliente implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +32,9 @@ public class Cliente implements Serializable{
 
     @Column(nullable = false)
     private String telefono;
+
+    @Column(name = "codigo_cita")
+    private String codigoCita;
 
     @Column(name = "fecha_registro")
     private LocalDateTime fechaRegistro;

@@ -1,5 +1,6 @@
 package com.app.citas.Services.cita;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ import com.app.citas.Entity.Negocio;
 import com.app.citas.Entity.Servicio;
 import com.app.citas.Entity.SesionWhatsapp;
 import com.app.citas.Repository.CitaRepository;
+import com.app.citas.Services.clientes.ClienteQuery;
 import com.app.citas.Services.negocio.INegocioQuery;
 import com.app.citas.Services.servicios.IServicioQuery;
 
@@ -26,6 +28,32 @@ public class CitaQueryImpl implements ICitaQuery {
 
     @Autowired
     private INegocioQuery negocioQuery;
+
+    @Autowired
+    private ClienteQuery clienteQuery;
+
+    @Override
+    public List<Cita> verficarCantidadCitasAgendadas(String telefono, LocalDate fecha) {
+        Long clienteId = this.clienteQuery.obtenerClienteByNumero(telefono).getId();
+        List<Cita> cantidad = this.citaRepository.obtenerCitasDelDia(clienteId, fecha);
+        return cantidad;
+    }
+
+    @Override
+    public LocalDate buscarSiguienteDiaDisponible(SesionWhatsapp sesion) {
+        LocalDate fecha = sesion.getFechaCreacion();
+        for (int i = 1; i <= 7; i++) {
+            LocalDate nuevaFecha = fecha.plusDays(i);
+            sesion.setFechaCreacion(nuevaFecha);
+            List<LocalTime> horarios = procesarHoraUsuario(sesion);
+
+            if (!horarios.isEmpty()) {
+                return nuevaFecha;
+            }
+
+        }
+        return null;
+    }
 
     @Override
     public List<LocalTime> procesarHoraUsuario(SesionWhatsapp sesion) {

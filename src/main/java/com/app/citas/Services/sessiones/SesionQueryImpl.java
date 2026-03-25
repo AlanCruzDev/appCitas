@@ -24,6 +24,7 @@ public class SesionQueryImpl implements ISesionQuery {
     @Override
     public SesionWhatsapp obtenerSesion(String telefono) {
         SesionWhatsapp sesion = this.sesionWhatsappRepository.findByTelefono(telefono).orElse(null);
+
         if (sesion == null) {
             sesion = this.sesionMutant.crearSesionNueva(telefono);
             return sesion;
@@ -33,6 +34,7 @@ public class SesionQueryImpl implements ISesionQuery {
             sesion = this.sesionMutant.reiniciarSesion(sesion);
             sesion.setMensajeSistema("⏳ Tu sesión expiró por inactividad.\n\nIniciemos nuevamente.");
         }
+
         return sesion;
     }
 

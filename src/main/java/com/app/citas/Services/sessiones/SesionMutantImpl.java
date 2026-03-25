@@ -12,13 +12,10 @@ import com.app.citas.Repository.SesionWhatsappRepository;
 
 @Service
 @Transactional
-public class SesionMutantImpl implements ISesionMutant{
-
+public class SesionMutantImpl implements ISesionMutant {
 
     @Autowired
     private SesionWhatsappRepository sesionWhatsappRepository;
-
-
 
     @Override
     public SesionWhatsapp crearSesionNueva(String telefono) {
@@ -27,7 +24,6 @@ public class SesionMutantImpl implements ISesionMutant{
         sesion.setEstado(EstadoBot.MENU);
         return this.sesionWhatsappRepository.save(sesion);
     }
-
 
     @Override
     public SesionWhatsapp reiniciarSesion(SesionWhatsapp sesion) {
@@ -38,14 +34,14 @@ public class SesionMutantImpl implements ISesionMutant{
         sesion.setClienteId(null);
         sesion.setEmpleadoId(null);
         sesion.setUltimaInteraccion(LocalDateTime.now());
+        sesion.setMensajeSistema(null);
         return this.sesionWhatsappRepository.save(sesion);
     }
-
 
     @Override
     public void guardarSesion(SesionWhatsapp sesion) {
         sesion.setUltimaInteraccion(LocalDateTime.now());
         this.sesionWhatsappRepository.save(sesion);
     }
-    
+
 }
