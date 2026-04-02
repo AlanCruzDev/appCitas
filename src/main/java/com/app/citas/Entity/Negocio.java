@@ -20,7 +20,7 @@ import lombok.Setter;
 @Table(name = "negocio", schema = "cit_mex")
 @Getter
 @Setter
-public class Negocio implements Serializable{
+public class Negocio implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,19 +31,17 @@ public class Negocio implements Serializable{
     private LocalTime hora_apertura;
     private LocalTime hora_cierre;
     private boolean activo;
-    
-     // Dueño
+
+    // Dueño
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dueno_id", nullable = false)
     private Usuario dueno;
 
-    //Empleados
+    // Empleados
     @OneToMany(mappedBy = "negocio")
     private List<Usuario> empleados;
 
     @OneToMany(mappedBy = "negocio")
     private List<Cita> citas;
-    
 
-    
-}   
+}

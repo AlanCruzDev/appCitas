@@ -1,5 +1,6 @@
 package com.app.citas.config;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import com.app.citas.Mapper.ConstrucionMensaje;
 import com.app.citas.Mapper.Model.NegocioModel;
 import com.app.citas.Mapper.Model.ServiciosModel;
 import com.app.citas.Services.negocio.INegocioQuery;
-import com.app.citas.Services.servicios.IServicioQuery;
 
 @Component
 public class SucursalState implements BotState {
@@ -19,8 +19,8 @@ public class SucursalState implements BotState {
     @Autowired
     private INegocioQuery negocioQuery;
 
-    @Autowired
-    private IServicioQuery iServicioQuery;
+    // @Autowired
+    // private IServicioQuery iServicioQuery;
 
     @Autowired
     private BotValidador botValidador;
@@ -57,7 +57,9 @@ public class SucursalState implements BotState {
 
     private String generarMapeoServicios(long IdNegocio) {
 
-        List<ServiciosModel> servicios = iServicioQuery.obtenerServiciosByNegocio(IdNegocio);
+        // List<ServiciosModel> servicios =
+        // iServicioQuery.obtenerServiciosByNegocio(IdNegocio);
+        List<ServiciosModel> servicios = new ArrayList<>();
         StringBuilder mensajeServicio = new StringBuilder();
         mensajeServicio.append("Selecciona un servicio:\n\n");
 

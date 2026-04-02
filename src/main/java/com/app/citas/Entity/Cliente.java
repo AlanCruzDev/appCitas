@@ -33,6 +33,9 @@ public class Cliente implements Serializable {
     @Column(nullable = false)
     private String telefono;
 
+    @Column(name = "contrasenia")
+    private String contrasenia;
+
     @Column(name = "codigo_cita")
     private String codigoCita;
 

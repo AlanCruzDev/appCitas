@@ -13,6 +13,5 @@ public class ServiciosDto {
     private float precio;
     private boolean activo;
     private Long idNegocio;
-    
-    
+    private Long idUsuario;
 }

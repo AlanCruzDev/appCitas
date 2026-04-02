@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 
-
 @RestController
 @RequestMapping("api/usuario")
 public class UsuarioController {
@@ -21,19 +20,16 @@ public class UsuarioController {
     @Autowired
     private UsuarioMutant usuarioMutant;
 
-
     @GetMapping("/saludo")
     public String getSaludo() {
         return new String("HOLA MUNDO");
     }
-    
 
     @PostMapping("/guardar")
-    public ResponseEntity<ApiResponse<Object>> guardarEmpleado(@RequestBody  UsuarioDto usuarioDto) {
-       this.usuarioMutant.guardarEmpleado(usuarioDto);
+    public ResponseEntity<ApiResponse<Object>> guardarEmpleado(@RequestBody UsuarioDto usuarioDto) {
+        this.usuarioMutant.guardarEmpleado(usuarioDto);
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(new ApiResponse<>(true, "Usuario creado correctamente", null));
+                .body(new ApiResponse<>(true, "Usuario creado correctamente", null));
     }
-    
-    
+
 }

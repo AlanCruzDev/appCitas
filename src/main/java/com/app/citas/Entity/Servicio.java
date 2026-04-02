@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -19,22 +20,19 @@ import lombok.Setter;
 @Table(name = "servicio", schema = "cit_mex")
 @Getter
 @Setter
-public class Servicio implements Serializable{
+public class Servicio implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idServicio;
-    
-    
-    private String nombre;
 
+    private String nombre;
 
     @Column(name = "duracion_minutos")
     private int duracionMinutos;
-    
     private float precio;
     private boolean activo;
-    
+
     @ManyToOne
     @JoinColumn(name = "negocio_id", nullable = false)
     private Negocio negocio;
@@ -42,5 +40,8 @@ public class Servicio implements Serializable{
     @OneToMany(mappedBy = "servicio")
     private List<Cita> citas;
 
-        
+    // tabla intermedia
+    @ManyToMany(mappedBy = "servicios")
+    private List<Usuario> usuarios;
+
 }

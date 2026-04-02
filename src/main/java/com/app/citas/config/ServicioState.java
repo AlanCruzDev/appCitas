@@ -1,5 +1,6 @@
 package com.app.citas.config;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,14 +12,13 @@ import com.app.citas.Estados.BotState;
 import com.app.citas.Estados.EstadoBot;
 import com.app.citas.Mapper.ConstrucionMensaje;
 import com.app.citas.Mapper.Model.ServiciosModel;
-import com.app.citas.Services.servicios.IServicioQuery;
 import com.app.citas.Services.usuario.EmpleadoQuery;
 
 @Component
 public class ServicioState implements BotState {
 
-    @Autowired
-    private IServicioQuery servicioQuery;
+    // @Autowired
+    // private IServicioQuery servicioQuery;
 
     @Autowired
     private EmpleadoQuery empleadoQuery;
@@ -34,7 +34,9 @@ public class ServicioState implements BotState {
 
         String respuesta = "";
 
-        List<ServiciosModel> serviciosList = servicioQuery.obtenerServiciosByNegocio(sesion.getSucursalId());
+        // List<ServiciosModel> serviciosList =
+        // servicioQuery.obtenerServiciosByNegocio(sesion.getSucursalId());
+        List<ServiciosModel> serviciosList = new ArrayList<>();
 
         Integer opcionValidate = this.botValidador.validarOpcion(body, serviciosList.size());
         if (opcionValidate == null) {

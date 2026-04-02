@@ -13,18 +13,15 @@ import com.app.citas.excepciones.NoExisteException;
 
 import jakarta.transaction.Transactional;
 
-
-
 @Service
 @Transactional
-public class NegocioMutationImpl implements INegocioMutation{
+public class NegocioMutationImpl implements INegocioMutation {
 
     @Autowired
     private NegocioRepository negocioRepository;
 
     @Autowired
     private INegocioQuery iNegocioQuery;
-
 
     @Override
     public void guardarNegocioNuevoDuenio(NegocioDto negocioDto) {
@@ -36,11 +33,11 @@ public class NegocioMutationImpl implements INegocioMutation{
         negocio.setHora_cierre(negocioDto.getHora_cierre());
         negocio.setActivo(true);
         Usuario user = this.iNegocioQuery.encontrarDuenosById(negocioDto.getIdUsuario());
-        if(Objects.isNull(user)){
+        if (Objects.isNull(user)) {
             throw new NoExisteException("El usuario no existe");
         }
-        
+
         negocio.setDueno(user);
-        this.negocioRepository.save(negocio);   
+        this.negocioRepository.save(negocio);
     }
 }

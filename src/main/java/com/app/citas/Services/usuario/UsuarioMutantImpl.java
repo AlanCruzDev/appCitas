@@ -1,7 +1,5 @@
 package com.app.citas.Services.usuario;
 
-import java.time.LocalDate;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +13,7 @@ import jakarta.transaction.Transactional;
 
 @Service
 @Transactional
-public class UsuarioMutantImpl implements UsuarioMutant{
+public class UsuarioMutantImpl implements UsuarioMutant {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -27,16 +25,15 @@ public class UsuarioMutantImpl implements UsuarioMutant{
     public void guardarEmpleado(UsuarioDto usuarioDto) {
         Usuario user = new Usuario();
         user.setNombre(usuarioDto.getNombre());
-        user.setEmail(usuarioDto.getEmail());
         user.setPassword(usuarioDto.getPassword());
         user.setRol(usuarioDto.getRoles());
-        user.setActivo(true);
         user.setRecibeCitas(usuarioDto.isRecibeCitas());
-        user.setFechaCreacion(LocalDate.now());
-        
+        user.setTelefono(usuarioDto.getTelefono());
+        user.setActivo(true);
+
         Negocio negocio = this.negocioQuery.encontrarNegocioById(usuarioDto.getIdnegocio());
         user.setNegocio(negocio);
         this.usuarioRepository.save(user);
     }
-    
+
 }

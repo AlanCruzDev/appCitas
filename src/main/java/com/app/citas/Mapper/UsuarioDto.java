@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UsuarioDto {
-    
+
     private String nombre;
     private String email;
     private String password;
@@ -19,5 +19,6 @@ public class UsuarioDto {
     private LocalDate fechaCreacion;
     private boolean recibeCitas;
     private Long idnegocio;
+    private String telefono;
 
 }
