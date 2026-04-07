@@ -24,7 +24,7 @@ import lombok.Setter;
 @Table(name = "cita", schema = "cit_mex")
 @Getter
 @Setter
-public class Cita implements Serializable{
+public class Cita implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,9 +45,9 @@ public class Cita implements Serializable{
 
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente_id", nullable = false)
+    @JoinColumn(name = "cliente_id", nullable = true)
     private Cliente cliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,6 +58,8 @@ public class Cita implements Serializable{
     @JoinColumn(name = "negocio_id", nullable = false)
     private Negocio negocio;
 
+    @Column(name = "tipo_cita")
+    private TipoCita tipoCita;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "empleado_id")
@@ -70,5 +72,5 @@ public class Cita implements Serializable{
             this.estado = EstadoCita.AGENDADA;
         }
     }
-    
+
 }

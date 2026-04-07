@@ -42,6 +42,7 @@ public class LoginQueryImpl implements ILoginQuery {
             response.setNumero(usuario.getTelefono());
             response.setMenu("usuario");
             response.setRol(usuario.getRol().name());
+            response.setIdSucursal(usuario.getNegocio().getIdNegocio());
             return validarLogin(usuario.getPassword(), password, response);
         }
 

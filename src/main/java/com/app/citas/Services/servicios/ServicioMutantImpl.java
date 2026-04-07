@@ -1,6 +1,7 @@
 package com.app.citas.Services.servicios;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,16 @@ public class ServicioMutantImpl implements IServicioMutant {
     private UsuarioRepository usuarioRepository;
 
     @Override
+    public void desactivar(Long idServicio) {
+        Servicio servicio = this.servicioRepository.findById(idServicio).orElse(null);
+
+        if (Objects.nonNull(servicio)) {
+            servicio.setActivo(false);
+            this.servicioRepository.save(servicio);
+        }
+    }
+
+    @Override
     public String actualizarServicio(ServiciosDto dto) {
 
         Usuario user = obtenerUsuario(dto.getIdUsuario());
@@ -49,17 +60,16 @@ public class ServicioMutantImpl implements IServicioMutant {
     }
 
     @Override
-    public void guardarServicios(ServiciosDto dto) {
+    public void guardarServicios(List<ServiciosDto> dto) {
 
-        Usuario user = obtenerUsuario(dto.getIdUsuario());
+        dto.stream().forEach(item -> {
+            Usuario user = obtenerUsuario(item.getIdUsuario());
+            Servicio ser = new Servicio();
+            mapearServicio(ser, item);
+            servicioRepository.save(ser);
+            asignarServicioAUsuario(user, ser);
+        });
 
-        Servicio ser = new Servicio();
-
-        mapearServicio(ser, dto);
-
-        servicioRepository.save(ser);
-
-        asignarServicioAUsuario(user, ser);
     }
 
     private Usuario obtenerUsuario(Long idUsuario) {
@@ -68,13 +78,13 @@ public class ServicioMutantImpl implements IServicioMutant {
         if (Objects.isNull(user)) {
             throw new NoExisteException("El usuario no existe");
         }
-
         return user;
     }
 
     private void mapearServicio(Servicio ser, ServiciosDto dto) {
-        ser.setNombre(dto.getNombre());
-        ser.setDuracionMinutos(dto.getDuracion_minutos());
+        ser.setNombre(dto.getNomServicio());
+        ser.setDuracionMinutos(dto.getDuracionMin());
+        ser.setInforServicio(dto.getInfoServicio());
         ser.setPrecio(dto.getPrecio());
         ser.setActivo(true);
 

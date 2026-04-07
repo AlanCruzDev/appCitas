@@ -67,7 +67,7 @@ public class SucursalState implements BotState {
         for (ServiciosModel s : servicios) {
             mensajeServicio.append(i)
                     .append("️⃣ ")
-                    .append(s.getNombre())
+                    .append(s.getNomServicio())
                     .append(" - Precio: ")
                     .append(s.getPrecio())
                     .append("\n");

@@ -4,18 +4,23 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.app.citas.Entity.Cita;
-import com.app.citas.Entity.Negocio;
 import com.app.citas.Entity.Servicio;
 import com.app.citas.Entity.SesionWhatsapp;
+import com.app.citas.Entity.Usuario;
+import com.app.citas.Mapper.Model.CitalModel;
+import com.app.citas.Mapper.Model.ClienteModel;
+import com.app.citas.Mapper.Model.ServiciosModel;
 import com.app.citas.Repository.CitaRepository;
 import com.app.citas.Services.clientes.ClienteQuery;
-import com.app.citas.Services.negocio.INegocioQuery;
 import com.app.citas.Services.servicios.IServicioQuery;
+import com.app.citas.Services.usuario.EmpleadoQuery;
 
 @Service
 public class CitaQueryImpl implements ICitaQuery {
@@ -27,10 +32,38 @@ public class CitaQueryImpl implements ICitaQuery {
     private IServicioQuery iServicioQuery;
 
     @Autowired
-    private INegocioQuery negocioQuery;
+    private ClienteQuery clienteQuery;
 
     @Autowired
-    private ClienteQuery clienteQuery;
+    private EmpleadoQuery empleadoQuery;
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<CitalModel> ObtenerCitasPendientes(Long idCliente, Long idNegocio) {
+        List<Cita> citaslist = this.citaRepository.obtenerCitasDelDia(idNegocio, LocalDate.now(), idCliente);
+        return citaslist.stream().map(item -> {
+            CitalModel citas = new CitalModel();
+
+            citas.setId(item.getId());
+            citas.setFecha(item.getFecha());
+            citas.setHoraInicio(item.getHoraInicio());
+            citas.setHoraFin(item.getHoraFin());
+            citas.setEstado(item.getEstado());
+
+            ClienteModel clienteModel = new ClienteModel();
+            clienteModel.setId(item.getCliente().getId());
+            clienteModel.setNombre(item.getCliente().getNombre());
+            citas.setCliente(clienteModel);
+
+            ServiciosModel serviciosModel = new ServiciosModel();
+
+            serviciosModel.setIdServicio(item.getServicio().getIdServicio());
+            serviciosModel.setPrecio(item.getServicio().getPrecio());
+            serviciosModel.setNomServicio(item.getServicio().getNombre());
+
+            return citas;
+        }).collect(Collectors.toList());
+    }
 
     @Override
     public List<Cita> verficarCantidadCitasAgendadas(String telefono, LocalDate fecha) {
@@ -67,12 +100,14 @@ public class CitaQueryImpl implements ICitaQuery {
 
         List<Cita> citas = citaRepository.obtenerCitasDelDia(sesion.getSucursalId(), sesion.getFechaCreacion(),
                 sesion.getEmpleadoId());
+
         Servicio servicio = this.iServicioQuery.findByServicio(sesion.getServicioId());
-        Negocio negocio = this.negocioQuery.encontrarNegocioById(sesion.getSucursalId());
+
+        Usuario empleado = this.empleadoQuery.obtenerEmpleadoById(sesion.getEmpleadoId());
 
         List<LocalTime> horarios = generarHorariosDisponibles(
-                negocio.getHora_apertura(),
-                negocio.getHora_cierre(),
+                empleado.getHora_inicio(),
+                empleado.getHora_cierre(),
                 servicio.getDuracionMinutos(),
                 citas);
         return horarios;
@@ -112,5 +147,4 @@ public class CitaQueryImpl implements ICitaQuery {
     public String formatearHora(LocalTime hora) {
         return hora.format(java.time.format.DateTimeFormatter.ofPattern("h:mm a"));
     }
-
 }

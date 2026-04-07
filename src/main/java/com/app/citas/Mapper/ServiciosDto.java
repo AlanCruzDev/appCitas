@@ -8,8 +8,9 @@ import lombok.Setter;
 public class ServiciosDto {
 
     private Long idServicio;
-    private String nombre;
-    private int duracion_minutos;
+    private String nomServicio;
+    private int duracionMin;
+    private String infoServicio;
     private float precio;
     private boolean activo;
     private Long idNegocio;

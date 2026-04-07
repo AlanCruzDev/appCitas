@@ -28,7 +28,7 @@ public class ServicioController {
     private IServicioMutant iServicioMutant;
 
     @GetMapping("/{idnegocio}/{idUsuario}")
-    public ResponseEntity<List<ServiciosModel>> getMethodName(
+    public ResponseEntity<List<ServiciosModel>> getServicios(
             @PathVariable("idnegocio") Long idnegocio, @PathVariable("idUsuario") Long idUsuario) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(this.iServicioQuery.obtenerServiciosByNegocio(idnegocio, idUsuario));
@@ -36,7 +36,7 @@ public class ServicioController {
     }
 
     @PostMapping("/guardar")
-    public ResponseEntity<ApiResponse<Void>> guardarServicios(@RequestBody ServiciosDto serviciosDto) {
+    public ResponseEntity<ApiResponse<Void>> guardarServicios(@RequestBody List<ServiciosDto> serviciosDto) {
         this.iServicioMutant.guardarServicios(serviciosDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(true, "Servicio creado correctamente", null));
@@ -47,7 +47,13 @@ public class ServicioController {
     public ResponseEntity<ApiResponse<Void>> actualizarServicios(@RequestBody ServiciosDto serviciosDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(true, this.iServicioMutant.actualizarServicio(serviciosDto), null));
+    }
 
+    @PutMapping("/desactivar/{id}")
+    public ResponseEntity<ApiResponse<Void>> putMethodName(@PathVariable("id") Long id) {
+        this.iServicioMutant.desactivar(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ApiResponse<>(true, "Servicio creado correctamente", null));
     }
 
 }

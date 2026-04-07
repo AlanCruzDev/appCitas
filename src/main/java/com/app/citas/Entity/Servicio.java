@@ -25,13 +25,13 @@ public class Servicio implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idServicio;
-
     private String nombre;
 
     @Column(name = "duracion_minutos")
     private int duracionMinutos;
     private float precio;
     private boolean activo;
+    private String inforServicio;
 
     @ManyToOne
     @JoinColumn(name = "negocio_id", nullable = false)

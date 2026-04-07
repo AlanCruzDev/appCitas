@@ -11,5 +11,6 @@ public class LoginResponse {
     private String numero;
     private String menu;
     private String rol;
+    private Long idSucursal;
 
 }

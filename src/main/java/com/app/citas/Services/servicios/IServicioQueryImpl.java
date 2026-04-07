@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.app.citas.Entity.Servicio;
 import com.app.citas.Mapper.Model.ServiciosModel;
-import com.app.citas.Mapper.Model.UsuarioModel;
 import com.app.citas.Repository.ServicioRepository;
 
 @Service
@@ -25,18 +24,20 @@ public class IServicioQueryImpl implements IServicioQuery {
 
             ServiciosModel serModel = new ServiciosModel();
             serModel.setIdServicio(item.getIdServicio());
-            serModel.setNombre(item.getNombre());
-            serModel.setDuracion_minutos(item.getDuracionMinutos());
+            serModel.setNomServicio(item.getNombre());
+            serModel.setDuracionMin(item.getDuracionMinutos());
             serModel.setPrecio(item.getPrecio());
+            serModel.setInfoServicio(item.getInforServicio());
 
-            List<UsuarioModel> user = item.getUsuarios().stream().map(u -> {
-                UsuarioModel usuario = new UsuarioModel();
-                usuario.setId(u.getId());
-                usuario.setNombre(u.getNombre());
-                return usuario;
-            }).collect(Collectors.toList());
-            serModel.setUsuarioModels(user);
-
+            /*
+             * List<UsuarioModel> user = item.getUsuarios().stream().map(u -> {
+             * UsuarioModel usuario = new UsuarioModel();
+             * usuario.setId(u.getId());
+             * usuario.setNombre(u.getNombre());
+             * return usuario;
+             * }).collect(Collectors.toList());
+             * serModel.setUsuarioModels(user);
+             */
             return serModel;
         }).collect(Collectors.toList());
     }

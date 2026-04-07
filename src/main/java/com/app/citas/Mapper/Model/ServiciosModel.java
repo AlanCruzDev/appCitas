@@ -10,9 +10,10 @@ import lombok.Setter;
 public class ServiciosModel {
 
     private Long idServicio;
-    private String nombre;
-    private int duracion_minutos;
     private float precio;
+    private String nomServicio;
+    private int duracionMin;
+    private String infoServicio;
     private boolean activo;
     private List<UsuarioModel> usuarioModels;
 

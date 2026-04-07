@@ -40,7 +40,7 @@ public class ServicioState implements BotState {
 
         Integer opcionValidate = this.botValidador.validarOpcion(body, serviciosList.size());
         if (opcionValidate == null) {
-            List<String> nombres = serviciosList.stream().map(ServiciosModel::getNombre).toList();
+            List<String> nombres = serviciosList.stream().map(ServiciosModel::getNomServicio).toList();
             return this.construcionMensaje.ConstruirLista("Selecciona un servicio:", nombres);
         }
         ServiciosModel servicioSelect = serviciosList.get(opcionValidate - 1);
