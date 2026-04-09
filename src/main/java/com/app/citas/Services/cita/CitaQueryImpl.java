@@ -50,16 +50,19 @@ public class CitaQueryImpl implements ICitaQuery {
             citas.setHoraFin(item.getHoraFin());
             citas.setEstado(item.getEstado());
 
-            ClienteModel clienteModel = new ClienteModel();
-            clienteModel.setId(item.getCliente().getId());
-            clienteModel.setNombre(item.getCliente().getNombre());
-            citas.setCliente(clienteModel);
+            if (item.getCliente() != null) {
+                ClienteModel clienteModel = new ClienteModel();
+                clienteModel.setId(item.getCliente().getId());
+                clienteModel.setNombre(item.getCliente().getNombre());
+                citas.setCliente(clienteModel);
+            }
 
             ServiciosModel serviciosModel = new ServiciosModel();
-
             serviciosModel.setIdServicio(item.getServicio().getIdServicio());
             serviciosModel.setPrecio(item.getServicio().getPrecio());
             serviciosModel.setNomServicio(item.getServicio().getNombre());
+
+            citas.setServicio(serviciosModel);
 
             return citas;
         }).collect(Collectors.toList());
