@@ -134,7 +134,7 @@ public class CitaQueryImpl implements ICitaQuery {
             boolean ocupado = false;
             for (Cita cita : citasDelDia) {
                 if (!(horaFin.isBefore(cita.getHoraInicio()) ||
-                        horaActual.isAfter(cita.getHoraFin()))) {
+                        !horaActual.isBefore(cita.getHoraFin()))) {
                     ocupado = true;
                     break;
                 }
