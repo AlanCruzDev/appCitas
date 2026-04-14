@@ -30,8 +30,8 @@ public class BotStateFactory {
     public BotState obtenerEstados(EstadoBot estadoBot) {
         return switch (estadoBot) {
             case SELECCION_SUCURSAL -> sucursalState;
-            case SELECCION_SERVICIO -> servicioState;
             case SELECCION_EMPLEADO -> empleadoState;
+            case SELECCION_SERVICIO -> servicioState;
             case SELECCION_FECHA -> fechaState;
             case CREAR_CITA -> citaState;
             case SELECCION_HORA_SUGERIDA -> horaSugerida;

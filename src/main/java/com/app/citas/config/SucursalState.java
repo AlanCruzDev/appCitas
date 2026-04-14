@@ -1,17 +1,17 @@
 package com.app.citas.config;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.app.citas.Entity.SesionWhatsapp;
+import com.app.citas.Entity.Usuario;
 import com.app.citas.Estados.BotState;
 import com.app.citas.Estados.EstadoBot;
 import com.app.citas.Mapper.ConstrucionMensaje;
 import com.app.citas.Mapper.Model.NegocioModel;
-import com.app.citas.Mapper.Model.ServiciosModel;
 import com.app.citas.Services.negocio.INegocioQuery;
+import com.app.citas.Services.usuario.EmpleadoQuery;
 
 @Component
 public class SucursalState implements BotState {
@@ -19,8 +19,8 @@ public class SucursalState implements BotState {
     @Autowired
     private INegocioQuery negocioQuery;
 
-    // @Autowired
-    // private IServicioQuery iServicioQuery;
+    @Autowired
+    private EmpleadoQuery empleadoQuery;
 
     @Autowired
     private BotValidador botValidador;
@@ -30,54 +30,61 @@ public class SucursalState implements BotState {
 
     @Override
     public String procesar(String from, String to, String body, SesionWhatsapp sesion) {
-        String respuesta = "";
-        Integer opcionValidate = null;
 
         List<NegocioModel> sucursales = negocioQuery.encontrarNegocioByNumero(to);
+
         if (sucursales.size() == 1) {
-            sesion.setSucursalId(sucursales.get(0).getIdNegocio());
-            respuesta = generarMapeoServicios(sesion.getSucursalId());
+            return manejarSucursalUnica(sucursales.get(0), sesion);
+        }
+
+        Integer opcion = botValidador.validarOpcion(body, sucursales.size());
+
+        if (opcion == null) {
+            List<String> nombres = sucursales.stream()
+                    .map(NegocioModel::getNombre)
+                    .toList();
+
+            return construcionMensaje.ConstruirLista("Selecciona una sucursal:", nombres);
+        }
+
+        NegocioModel negocioSeleccionado = sucursales.get(opcion - 1);
+        return manejarSucursalUnica(negocioSeleccionado, sesion);
+    }
+
+    private String manejarSucursalUnica(NegocioModel sucursal, SesionWhatsapp sesion) {
+
+        sesion.setSucursalId(sucursal.getIdNegocio());
+
+        List<Usuario> empleados = empleadoQuery.obtenerEmpleadosBySucursal(sucursal.getIdNegocio());
+        if (empleados.size() == 1) {
+            sesion.setEmpleadoId(empleados.get(0).getId());
             sesion.setEstado(EstadoBot.SELECCION_SERVICIO);
-            return respuesta;
-
-        } else {
-            opcionValidate = this.botValidador.validarOpcion(body, sucursales.size());
-            if (opcionValidate == null) {
-                List<String> nombres = sucursales.stream().map(NegocioModel::getNombre).toList();
-                return this.construcionMensaje.ConstruirLista("Selecciona una sucursal:", nombres);
-            }
+            return null;
         }
 
-        NegocioModel negocioSelect = selecionarNegocio(opcionValidate, sucursales);
-        sesion.setSucursalId(negocioSelect.getIdNegocio());
-        respuesta = generarMapeoServicios(negocioSelect.getIdNegocio());
-        sesion.setEstado(EstadoBot.SELECCION_SERVICIO);
-        return respuesta;
+        sesion.setEmpleadoId(null);
+        sesion.setEstado(EstadoBot.SELECCION_EMPLEADO);
+        return generarListaEmpleados(empleados);
     }
 
-    private String generarMapeoServicios(long IdNegocio) {
+    private String generarListaEmpleados(List<Usuario> empleados) {
 
-        // List<ServiciosModel> servicios =
-        // iServicioQuery.obtenerServiciosByNegocio(IdNegocio);
-        List<ServiciosModel> servicios = new ArrayList<>();
-        StringBuilder mensajeServicio = new StringBuilder();
-        mensajeServicio.append("Selecciona un servicio:\n\n");
+        StringBuilder mensaje = new StringBuilder("Selecciona un empleado:\n\n");
 
-        int i = 1;
-        for (ServiciosModel s : servicios) {
-            mensajeServicio.append(i)
+        for (int i = 0; i < empleados.size(); i++) {
+            mensaje.append(i + 1)
                     .append("️⃣ ")
-                    .append(s.getNomServicio())
-                    .append(" - Precio: ")
-                    .append(s.getPrecio())
+                    .append(empleados.get(i).getNombre())
                     .append("\n");
-            i++;
         }
-        return mensajeServicio.toString();
+
+        return mensaje.toString();
     }
 
-    private NegocioModel selecionarNegocio(int opcionValidate, List<NegocioModel> sucursales) {
-        return sucursales.get(opcionValidate - 1);
+    public boolean validarEmpleados(List<Usuario> empleados) {
+        if (empleados.size() == 1) {
+            return true;
+        }
+        return false;
     }
-
 }

@@ -1,7 +1,8 @@
 package com.app.citas.config;
 
-import java.time.LocalDate;
+import java.time.Duration;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,24 +32,29 @@ public class CitaState implements BotState {
         List<LocalTime> disponibles = this.citaQuery.procesarHoraUsuario(sesion);
 
         if (disponibles.isEmpty()) {
-            LocalDate sugerida = citaQuery.buscarSiguienteDiaDisponible(sesion);
-            if (sugerida != null) {
 
-                sesion.setFechaCreacion(sugerida);
+            LocalTime horaUsuario = sesion.getHora();
+            LocalTime siguiente = disponibles.stream()
+                    .filter(h -> !h.isBefore(horaUsuario))
+                    .findFirst()
+                    .orElse(null);
+
+            if (siguiente == null) {
+                siguiente = disponibles.stream()
+                        .min(Comparator.comparingLong(h -> Math.abs(Duration.between(horaUsuario, h).toMinutes())))
+                        .orElse(null);
+            }
+
+            if (siguiente != null) {
+
+                sesion.setHorariosSugeridos(List.of(siguiente));
                 sesion.setEstado(EstadoBot.SELECCION_HORA_SUGERIDA);
-                List<LocalTime> horarios = this.citaQuery.obtenerHorariosDisponibles(sesion);
-                StringBuilder mensajeHora = new StringBuilder();
-                mensajeHora.append("❌ No hay horarios ese día 😢\n\n");
-                mensajeHora.append("👉 Pero mira estos horarios disponibles para ti.  \n\n");
-                int k = 1;
-                for (LocalTime hora : horarios) {
-                    mensajeHora.append(k)
-                            .append("️⃣ ")
-                            .append(hora)
-                            .append("\n");
-                    k++;
-                }
-                return mensajeHora.toString();
+
+                return "⏰ No tengo disponible a las " +
+                        this.util.formatearHora(horaUsuario) +
+                        "\n\n👉 Te puedo atender a las " +
+                        this.util.formatearHora(siguiente) +
+                        "\n\n¿Confirmo tu cita? (Sí/No)";
             }
 
             sesion.setEstado(EstadoBot.MENU);
@@ -60,7 +66,6 @@ public class CitaState implements BotState {
         }
 
         List<LocalTime> sugerencias = this.util.sugerirDosMejoresSlots(sesion.getHora(), disponibles);
-
         StringBuilder mensaje = new StringBuilder();
         mensaje.append("⏰ No tengo disponible a las ")
                 .append(this.util.formatearHora(sesion.getHora()))
@@ -72,9 +77,7 @@ public class CitaState implements BotState {
                     .append(this.util.formatearHora(sugerencias.get(i)))
                     .append("\n");
         }
-
         mensaje.append("\nResponde con el número que prefieras 🙌");
-
         sesion.setHorariosSugeridos(sugerencias);
         sesion.setEstado(EstadoBot.SELECCION_HORA_SUGERIDA);
         return mensaje.toString();

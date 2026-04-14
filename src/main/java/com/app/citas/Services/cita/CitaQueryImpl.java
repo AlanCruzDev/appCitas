@@ -101,50 +101,70 @@ public class CitaQueryImpl implements ICitaQuery {
     @Override
     public List<LocalTime> obtenerHorariosDisponibles(SesionWhatsapp sesion) {
 
-        List<Cita> citas = citaRepository.obtenerCitasDelDia(sesion.getSucursalId(), sesion.getFechaCreacion(),
+        List<Cita> citas = citaRepository.obtenerCitasDelDia(
+                sesion.getSucursalId(),
+                sesion.getFechaCreacion(),
                 sesion.getEmpleadoId());
 
         Servicio servicio = this.iServicioQuery.findByServicio(sesion.getServicioId());
-
         Usuario empleado = this.empleadoQuery.obtenerEmpleadoById(sesion.getEmpleadoId());
 
-        List<LocalTime> horarios = generarHorariosDisponibles(
-                empleado.getHora_inicio(),
-                empleado.getHora_cierre(),
-                servicio.getDuracionMinutos(),
-                citas);
-        return horarios;
+        LocalTime inicio = empleado.getHora_inicio();
+        LocalTime fin = normalizarHoraCierre(empleado.getHora_cierre());
 
+        if (inicio == null || fin == null || !inicio.isBefore(fin)) {
+            throw new RuntimeException("Horario inválido del empleado");
+        }
+
+        return generarBloques(inicio, fin, servicio.getDuracionMinutos(), citas);
     }
 
-    public List<LocalTime> generarHorariosDisponibles(
-            LocalTime apertura,
-            LocalTime cierre,
+    private LocalTime normalizarHoraCierre(LocalTime cierre) {
+        if (cierre.equals(LocalTime.MIDNIGHT)) {
+            return LocalTime.of(23, 59);
+        }
+        return cierre;
+    }
+
+    private List<LocalTime> generarBloques(
+            LocalTime inicio,
+            LocalTime fin,
             int duracionServicio,
             List<Cita> citasDelDia) {
 
-        List<LocalTime> horariosDisponibles = new ArrayList<>();
+        List<LocalTime> disponibles = new ArrayList<>();
 
-        LocalTime horaActual = apertura;
+        LocalTime horaActual = inicio;
 
-        while (horaActual.plusMinutes(duracionServicio).isBefore(cierre)
-                || horaActual.plusMinutes(duracionServicio).equals(cierre)) {
+        int contador = 0;
+        int LIMITE = 48;
+
+        while ((horaActual.plusMinutes(duracionServicio).isBefore(fin)
+                || horaActual.plusMinutes(duracionServicio).equals(fin))
+                && contador < LIMITE) {
+
+            contador++;
 
             LocalTime horaFin = horaActual.plusMinutes(duracionServicio);
+
             boolean ocupado = false;
+
             for (Cita cita : citasDelDia) {
-                if (!(horaFin.isBefore(cita.getHoraInicio()) ||
-                        !horaActual.isBefore(cita.getHoraFin()))) {
+                if (horaActual.isBefore(cita.getHoraFin()) &&
+                        horaFin.isAfter(cita.getHoraInicio())) {
+
                     ocupado = true;
                     break;
                 }
             }
+
             if (!ocupado) {
-                horariosDisponibles.add(horaActual);
+                disponibles.add(horaActual);
             }
+
             horaActual = horaActual.plusMinutes(duracionServicio);
         }
-        return horariosDisponibles;
+        return disponibles;
     }
 
     public String formatearHora(LocalTime hora) {

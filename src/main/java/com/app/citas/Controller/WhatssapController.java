@@ -60,12 +60,11 @@ public class WhatssapController {
                 }
 
                 LocalDate fecha = fraseParser.detectarFechaPro(body);
-
                 if (fecha == null) {
                         fecha = fraseParser.detectarFecha(body);
                 }
-                LocalTime hora = fraseParser.detectarHoraPro(body);
 
+                LocalTime hora = fraseParser.detectarHoraPro(body);
                 if (fecha != null) {
                         sesion.setFechaCreacion(fecha);
                 }
